@@ -1,0 +1,71 @@
+/* ================= Token desain ================= */
+:root {
+  --ink: #14213d;        /* teks di tema terang */
+  --paper: #ffffff;
+  --line: #dfe3ea;
+  --accent: #2a6df4;
+  --accent-ink: #fff;
+  --night: #10131a;      /* latar Main Room */
+  --tile: #1b2030;
+  --night-line: #2b3247;
+  --danger: #e5484d;
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { font-family: var(--font); color: var(--ink); background: var(--paper); line-height: 1.5; }
+[hidden] { display: none !important; }
+.muted { color: #6b7488; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ================= Lobby ================= */
+.page { min-height: 100%; }
+.lobby { display: grid; place-items: center; padding: 24px; background: var(--paper); }
+.lobby-card { width: min(100%, 520px); display: grid; gap: 16px; }
+.lobby h1 { margin: 0; font-size: clamp(1.6rem, 4vw, 2.1rem); letter-spacing: -.02em; }
+.lobby p { margin: 0; }
+.preview { position: relative; aspect-ratio: 16/9; background: #eef1f6; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.preview video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.preview-msg { position: absolute; inset: auto 0 12px; text-align: center; font-size: .9rem; color: #6b7488; padding: 0 12px; }
+.preview.live .preview-msg { display: none; }
+.field { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
+input { font: inherit; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+.btn-primary { font: inherit; font-weight: 600; padding: 14px 18px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.btn-primary:hover { filter: brightness(1.08); }
+
+/* ================= Main Room (dark) ================= */
+.room { display: flex; flex-direction: column; height: 100vh; height: 100dvh; background: var(--night); color: #e8ecf5; }
+.room-top { display: flex; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--night-line); }
+.grid { flex: 1; min-height: 0; display: grid; gap: 10px; padding: 12px;
+        grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, 1fr); }
+.tile { position: relative; background: var(--tile); border: 1px solid var(--night-line); border-radius: 12px; overflow: hidden; display: grid; place-items: center; min-height: 0; }
+.tile video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.avatar { width: clamp(44px, 35%, 84px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 1.4rem; color: #fff; }
+.tag { position: absolute; left: 8px; bottom: 8px; padding: 2px 8px; font-size: .78rem; border-radius: 6px; background: rgba(0,0,0,.6); }
+.hand { position: absolute; top: 8px; right: 8px; padding: 2px 8px; font-size: .78rem; border-radius: 6px; background: #f5b83d; color: #1a1300; font-weight: 600; }
+.tile.self { border-color: var(--accent); }
+
+.controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; padding: 14px; border-top: 1px solid var(--night-line); }
+.ctl { font: inherit; padding: 10px 18px; border-radius: 999px; border: 1px solid var(--night-line); background: var(--tile); color: inherit; cursor: pointer; }
+.ctl:hover { background: #252c42; }
+.ctl[aria-pressed="true"] { background: #3a2230; border-color: var(--danger); }   /* Mic/Kamera: nonaktif */
+#handBtn[aria-pressed="true"] { background: #4a3a10; border-color: #f5b83d; }
+.ctl-leave { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+/* Responsif: 2 kolom x 5 baris di layar kecil */
+@media (max-width: 760px) {
+  .grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(5, 1fr); gap: 8px; padding: 8px; }
+}
+
+/* ================= Overlay Sesi Terkunci ================= */
+.lock { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px;
+        background: rgba(8, 10, 16, .72); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.lock-card { width: min(100%, 420px); background: #fff; color: var(--ink); border-radius: 16px; padding: 28px; display: grid; gap: 12px; }
+.lock-card h2 { margin: 0; }
+.lock-card p { margin: 0; }
+.lock-card input { text-align: center; font-size: 1.3rem; letter-spacing: .12em; text-transform: uppercase; }
+.mail-status { font-size: .85rem; color: #6b7488; }
+.token-error { min-height: 1.3em; color: var(--danger); font-size: .9rem; }
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } }

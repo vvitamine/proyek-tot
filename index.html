@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart-Classroom Anti-Distraksi</title>
+  <meta name="description" content="Prototipe kelas daring dengan kunci layar anti-distraksi.">
+  <link rel="stylesheet" href="style.css">
+  <!-- EmailJS SDK (versi dipatok agar stabil). Dimuat via CDN. -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- ============ HALAMAN 1: LOBBY (tema terang) ============ -->
+  <main id="lobby" class="page lobby">
+    <section class="lobby-card">
+      <h1>Siap masuk kelas?</h1>
+      <p class="muted">Periksa kamera Anda, lalu gabung. Selama sesi berlangsung, layar akan terkunci jika Anda berpindah tab.</p>
+
+      <div class="preview">
+        <video id="lobbyVideo" autoplay muted playsinline></video>
+        <p id="lobbyMsg" class="preview-msg">Meminta izin kamera…</p>
+      </div>
+
+      <label class="field">
+        <span>Nama Anda</span>
+        <input id="nameInput" type="text" maxlength="24" placeholder="Contoh: Rani" autocomplete="name">
+      </label>
+
+      <button id="joinBtn" class="btn-primary" type="button">Gabung Kelas</button>
+    </section>
+  </main>
+
+  <!-- ============ HALAMAN 2: MAIN ROOM (dark mode) ============ -->
+  <main id="room" class="page room" hidden>
+    <header class="room-top">
+      <strong>Kelas Biologi XI-A</strong>
+      <span id="clock" class="muted">00:00</span>
+    </header>
+
+    <section id="grid" class="grid" aria-label="Peserta kelas"></section>
+
+    <nav class="controls" aria-label="Kontrol kelas">
+      <button id="micBtn"   class="ctl" type="button" aria-pressed="false">Mic</button>
+      <button id="camBtn"   class="ctl" type="button" aria-pressed="false">Kamera</button>
+      <button id="handBtn"  class="ctl" type="button" aria-pressed="false">Angkat tangan</button>
+      <button id="leaveBtn" class="ctl ctl-leave" type="button">Keluar</button>
+    </nav>
+  </main>
+
+  <!-- ============ OVERLAY: SESI TERKUNCI ============ -->
+  <div id="lockOverlay" class="lock" role="dialog" aria-modal="true" aria-labelledby="lockTitle" hidden>
+    <div class="lock-card">
+      <h2 id="lockTitle">Sesi Terkunci</h2>
+      <p>Anda meninggalkan halaman kelas. Minta token kepada guru, lalu masukkan di bawah untuk melanjutkan.</p>
+      <p id="mailStatus" class="mail-status" aria-live="polite"></p>
+      <input id="tokenInput" type="text" placeholder="EDU-XXXX" maxlength="8" autocomplete="off" spellcheck="false" aria-label="Token dari guru">
+      <p id="tokenError" class="token-error" role="alert"></p>
+      <button id="unlockBtn" class="btn-primary" type="button">Buka kunci</button>
+    </div>
+  </div>
+
+</body>
+</html>
