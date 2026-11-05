@@ -82,7 +82,7 @@ function joinRoom() {
   // Membuat Iframe Jitsi (Video Conference)
   const jitsiFrame = document.createElement("iframe");
   // Ganti "RuangKelasTOT" dengan nama room unikmu (tanpa spasi)
- jitsiFrame.src = "https://meet.mayfirst.org/RuangKelasTOT"; 
+ jitsiFrame.src = "https://meet.hosttech.ch/RuangKelasTOT"; 
   jitsiFrame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
   jitsiFrame.style.width = "100%";
   jitsiFrame.style.height = "100%";
