@@ -1,19 +1,16 @@
 /* =====================================================================
    Smart-Classroom Anti-Distraksi — script.js
+   ===================================================================== */
 
 "use strict";
 
-/* ---------- KONFIGURASI PENTING ---------- */
-// ⚠️ WAJIB DIGANTI dengan kredensial dari dashboard akun EmailJS kamu!
+/* ---------- KONFIGURASI EMAILJS (JANGAN DIUBAH) ---------- */
 const CONFIG = {
   TEACHER_EMAIL: "h1101251071@student.untan.ac.id", 
-  EMAILJS_SERVICE_ID:  "service_0farm3d",    // <- Ganti ini
-  EMAILJS_TEMPLATE_ID: "template_li7y1bn",   // <- Ganti ini
-  EMAILJS_PUBLIC_KEY:  "I9z2sELFHPtfPMOrt",    // <- Ganti ini
+  EMAILJS_SERVICE_ID:  "service_0farm3d",
+  EMAILJS_TEMPLATE_ID: "template_li7y1bn",
+  EMAILJS_PUBLIC_KEY:  "I9z2sELFHPtfPMOrt",
 };
-
-const DUMMY_NAMES = ["Bella", "Dimas", "Farhan", "Gita", "Hana", "Intan", "Joko", "Laras"];
-const COLORS = ["#5b6cff", "#d9534f", "#b05fd1", "#2a9bb5", "#7a8a2e", "#c0508a"];
 
 const $ = (id) => document.getElementById(id);
 const state = { stream: null, inRoom: false, locked: false, token: null, name: "Saya", attempts: 0 };
@@ -25,7 +22,7 @@ function initEmail() {
 
 async function sendTokenEmail(token) {
   const status = $("mailStatus");
-  if (!window.emailjs) { status.textContent = "Layanan email tidak termuat. Hubungi guru."; return; }
+  if (!window.emailjs) { status.textContent = "Layanan email tidak termuat."; return; }
   status.textContent = "Mengirim token ke guru…";
   try {
     await emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, {
@@ -38,7 +35,7 @@ async function sendTokenEmail(token) {
     status.textContent = "Token sudah dikirim ke guru.";
   } catch (err) {
     console.error("EmailJS gagal:", err);
-    status.textContent = "Token gagal dikirim. Periksa kredensial EmailJS atau hubungi guru.";
+    status.textContent = "Token gagal dikirim. Hubungi guru.";
   }
 }
 
@@ -50,7 +47,7 @@ function generateToken() {
   return "EDU-" + Array.from(buf, (n) => chars[n % chars.length]).join("");
 }
 
-/* ---------- Kamera ---------- */
+/* ---------- Kamera Lobby ---------- */
 async function startCamera() {
   const box = document.querySelector(".preview");
   try {
@@ -59,63 +56,11 @@ async function startCamera() {
     box.classList.add("live");
   } catch (err) {
     console.warn("Kamera tidak tersedia:", err);
-    $("lobbyMsg").textContent = "Kamera/mic tidak bisa diakses. Izinkan akses di browser, atau lanjut tanpa kamera.";
+    $("lobbyMsg").textContent = "Kamera tidak bisa diakses. Lanjut tanpa kamera.";
   }
 }
 
-/* ---------- Main Room ---------- */
-function buildGrid() {
-  const grid = $("grid");
-  grid.replaceChildren();
-
-  const me = document.createElement("div");
-  me.className = "tile self";
-  me.id = "selfTile";
-  me.innerHTML = '<div class="avatar" id="selfAvatar"></div><video autoplay muted playsinline></video><span class="tag"></span>';
-  me.querySelector(".avatar").style.background = COLORS[0];
-  me.querySelector(".avatar").textContent = state.name[0].toUpperCase();
-  me.querySelector(".tag").textContent = state.name + " (Anda)";
-  const v = me.querySelector("video");
-  if (state.stream) v.srcObject = state.stream; else v.hidden = true;
-  grid.appendChild(me);
-
-  const names = [...DUMMY_NAMES].sort(() => Math.random() - 0.5).slice(0, 9);
-  names.forEach((n, i) => {
-    const t = document.createElement("div");
-    t.className = "tile";
-    const a = document.createElement("div");
-    a.className = "avatar";
-    a.style.background = COLORS[(i + 1) % COLORS.length];
-    a.textContent = n[0];
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.textContent = n;
-    t.append(a, tag);
-    grid.appendChild(t);
-  });
-}
-
-function toggleTrack(kind, btn, label) {
-  const tracks = state.stream ? (kind === "audio" ? state.stream.getAudioTracks() : state.stream.getVideoTracks()) : [];
-  const off = btn.getAttribute("aria-pressed") !== "true";
-  tracks.forEach((t) => (t.enabled = !off));
-  btn.setAttribute("aria-pressed", String(off));
-  btn.textContent = off ? label + " mati" : label;
-  if (kind === "video") {
-    const v = document.querySelector("#selfTile video");
-    if (v) v.style.visibility = off ? "hidden" : "visible";
-  }
-}
-
-function toggleHand() {
-  const btn = $("handBtn");
-  const on = btn.getAttribute("aria-pressed") !== "true";
-  btn.setAttribute("aria-pressed", String(on));
-  const tile = $("selfTile");
-  tile.querySelector(".hand")?.remove();
-  if (on) { const h = document.createElement("span"); h.className = "hand"; h.textContent = "Tangan terangkat"; tile.appendChild(h); }
-}
-
+/* ---------- Main Room & Jitsi ---------- */
 let clockTimer;
 function startClock() {
   const t0 = Date.now();
@@ -128,7 +73,24 @@ function startClock() {
 
 function joinRoom() {
   state.name = $("nameInput").value.trim() || "Saya";
-  buildGrid();
+  
+  // Hentikan kamera lobby agar tidak bentrok dengan Jitsi
+  if (state.stream) {
+    state.stream.getTracks().forEach(track => track.stop());
+  }
+
+  // Membuat Iframe Jitsi (Video Conference)
+  const jitsiFrame = document.createElement("iframe");
+  // Ganti "RuangKelasTOT" dengan nama room unikmu (tanpa spasi)
+  jitsiFrame.src = "https://meet.jit.si/RuangKelasTOT"; 
+  jitsiFrame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
+  jitsiFrame.style.width = "100%";
+  jitsiFrame.style.height = "100%";
+  jitsiFrame.style.border = "none";
+
+  // Masukkan Jitsi ke dalam layar
+  $("jitsi-container").replaceChildren(jitsiFrame);
+
   $("lobby").hidden = true;
   $("room").hidden = false;
   state.inRoom = true;
@@ -140,10 +102,15 @@ function leaveRoom() {
   clearInterval(clockTimer);
   $("room").hidden = true;
   $("lobby").hidden = false;
-  if (state.stream) $("lobbyVideo").srcObject = state.stream;
+  
+  // Hapus iframe Jitsi agar benar-benar keluar dari room video
+  $("jitsi-container").replaceChildren();
+  
+  // Nyalakan lagi kamera lobby
+  startCamera();
 }
 
-/* ---------- ANTI-DISTRAKSI ---------- */
+/* ---------- ANTI-DISTRAKSI (JANGAN DIUBAH) ---------- */
 function lockSession() {
   if (!state.inRoom || state.locked) return;
   state.locked = true;
@@ -175,15 +142,12 @@ function tryUnlock() {
   }
 }
 
-/* ---------- Event ---------- */
+/* ---------- Event Listener ---------- */
 window.addEventListener("DOMContentLoaded", () => {
   initEmail();
   startCamera();
   $("joinBtn").addEventListener("click", joinRoom);
   $("leaveBtn").addEventListener("click", leaveRoom);
-  $("micBtn").addEventListener("click", (e) => toggleTrack("audio", e.currentTarget, "Mic"));
-  $("camBtn").addEventListener("click", (e) => toggleTrack("video", e.currentTarget, "Kamera"));
-  $("handBtn").addEventListener("click", toggleHand);
   $("unlockBtn").addEventListener("click", tryUnlock);
   $("tokenInput").addEventListener("keydown", (e) => { if (e.key === "Enter") tryUnlock(); });
 });
