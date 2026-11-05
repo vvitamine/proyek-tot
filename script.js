@@ -82,7 +82,7 @@ function joinRoom() {
   // Membuat Iframe Jitsi (Video Conference)
   const jitsiFrame = document.createElement("iframe");
   // Ganti "RuangKelasTOT" dengan nama room unikmu (tanpa spasi)
- jitsiFrame.src = "https://call.vern.cc/RuangKelasTOT"; 
+ jitsiFrame.src = "https://p2p.mirotalk.com/join/RuangKelasTOT"; 
   jitsiFrame.allow = "camera; microphone; fullscreen; display-capture; autoplay";
   jitsiFrame.style.width = "100%";
   jitsiFrame.style.height = "100%";
